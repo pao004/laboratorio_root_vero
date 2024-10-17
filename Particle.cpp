@@ -20,6 +20,7 @@ int Particle::FindParticle(const char *name)
     return -1;
 }
 
+
 /*void Particle::AddParticleType(const char *name, double mass, int charge, double width)
 {
     int index = FindParticle(name);
