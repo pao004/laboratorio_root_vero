@@ -2,6 +2,7 @@
 #include "ResonanceType.hpp"
 
 #include <iostream>
+#include <cmath>
 
 Particle::Particle(double px, double py, double pz, char *name) : fPx_{px}, fPy_{py}, fPz_{pz}, findex_{FindParticle(name)} {
                                                                       /*
@@ -94,9 +95,42 @@ void Particle::AddParticleType(char *name, double mass, int charge, double width
     }
     // std::cout << fParticleType_[0]->Getname() << std::endl;
 }
+
 void Particle::Print_SomeProp()
 {
     std::cout << "Index = " << findex_ << std::endl;
     std::cout << "name = " << fParticleType_[findex_]->Getname() << '\n';
     std::cout << "(Px,Py,Pz) = ( " << fPx_ << " , " << fPy_ << " , " << fPz_ << " )" << std::endl;
+}
+
+void Particle::Print_fParticleType()
+{
+    //(*fParticleType_[0]).ParticleType::PrintProperties();
+    for (int i{0}; i < fMaxNumParticleType; ++i)
+    {
+        (*fParticleType_[i]).PrintProperties();
+    }
+}
+
+double Particle::Return_fMass() const
+{ // provare a passare sia un resonance che un particle type
+    int Index = this->GetfIndex();
+    return (*fParticleType_[Index]).Getmass();
+}
+
+double Particle::Calc_total_E() const
+{
+    double m_2 = (this->Return_fMass()) * (this->Return_fMass());
+    double p_2 = (this->GetPulsex()) * (this->GetPulsex()) + (this->GetPulsey()) * (this->GetPulsey()) + (this->GetPulsez()) * (this->GetPulsez());
+    return sqrt(m_2 + p_2);
+}
+
+double Particle::InvariantMass(Particle &p)
+{
+    double E_2 = (p.Calc_total_E() + this->Calc_total_E()) * (p.Calc_total_E() + this->Calc_total_E());
+    double p_2_x = (p.GetPulsex() + this->GetPulsex()) * (p.GetPulsex() + this->GetPulsex());
+    double p_2_y = (p.GetPulsey() + this->GetPulsey()) * (p.GetPulsey() + this->GetPulsey());
+    double p_2_z = (p.GetPulsex() + this->GetPulsez()) * (p.GetPulsez() + this->GetPulsez());
+    double p_2 = p_2_x + p_2_y + p_2_z;
+    return sqrt(E_2 - p_2);
 }

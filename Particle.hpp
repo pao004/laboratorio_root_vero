@@ -1,4 +1,4 @@
-#include "class.hpp"
+#include "ParticleType.hpp"
 
 class Particle
 {
@@ -14,9 +14,18 @@ public:
     void Setfindex(int fIndex);
 
     void SetP(double px, double py, double pz);
-    void Print_SomeProp();
 
     static void AddParticleType(char *name, double mass, int charge, double width = 0.);
+
+    void Print_SomeProp();
+
+    void Print_fParticleType();
+
+    double Return_fMass() const;
+
+    double Calc_total_E() const;
+
+    double InvariantMass(Particle &p);
 
 private:
     static int FindParticle(const char *name);
