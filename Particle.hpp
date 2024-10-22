@@ -5,20 +5,18 @@ class Particle
 public:
     Particle(double px, double py, double pz, char *name);
 
-    int GetfIndex() const { return findex_; }
+    int GetfIndex() const;
 
-    double GetPulsex() const { return fPx_; }
-    double GetPulsey() const { return fPy_; }
-    double GetPulsez() const { return fPz_; }
+    double GetPulsex() const;
+    double GetPulsey() const;
+    double GetPulsez() const;
 
-    void SetP(double px, double py, double pz)
-    {
-        fPx_ = px;
-        fPy_ = py;
-        fPz_ = pz;
-    }
+    void Setfindex(int fIndex);
 
-    static void AddParticleType(const char *name, double mass, int charge, double width);
+    void SetP(double px, double py, double pz);
+    void Print_SomeProp();
+
+    static void AddParticleType(char *name, double mass, int charge, double width = 0.);
 
 private:
     static int FindParticle(const char *name);
