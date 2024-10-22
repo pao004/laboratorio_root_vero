@@ -1,5 +1,4 @@
 #include "class.hpp"
-
 #include <iostream>
 
 ParticleType::ParticleType(char *fName, double fMass, int fCharge) : fName_{fName}, fMass_{fMass}, fCharge_{fCharge} {};
