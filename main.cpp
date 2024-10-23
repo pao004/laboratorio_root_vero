@@ -3,7 +3,9 @@
 #include "Particle.hpp"
 
 int main()
-{
+{  
+    int inutile{0};
+    
     char f[] = "f";
 
     ParticleType particle1(f, 2, 2);
@@ -79,3 +81,4 @@ int main()
     P4.Print_SomeProp();
 
 }
+//provaa
