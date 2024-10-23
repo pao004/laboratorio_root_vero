@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cmath>
+#include <cstdlib>
 
 Particle::Particle(double px, double py, double pz, char *name) : fPx_{px}, fPy_{py}, fPz_{pz}, findex_{FindParticle(name)} {
                                                                       /*
@@ -63,7 +64,7 @@ int Particle::FindParticle(const char *name)
         }
     }
 
-    std::cout << "Error: no match!\n";
+    std::cout << "No match->fill!\n";
     return -1;
 }
 
@@ -74,9 +75,11 @@ void Particle::AddParticleType(char *name, double mass, int charge, double width
 
     int index = FindParticle(name);
     // std::cout << "Find eseguito" << '\n';
-
+    std::cout << fNParticleType << '\n';
     if (index == -1 && fNParticleType < fMaxNumParticleType)
     {
+        // std::cout << fNParticleType << '\n';
+
         if (width <= 0)
         {
             ParticleType *newParticle = new ParticleType(name, mass, charge);
@@ -93,6 +96,9 @@ void Particle::AddParticleType(char *name, double mass, int charge, double width
         }
         ++fNParticleType;
     }
+
+    // std::cout << "No space!\n";
+
     // std::cout << fParticleType_[0]->Getname() << std::endl;
 }
 
@@ -108,7 +114,14 @@ void Particle::Print_fParticleType()
     //(*fParticleType_[0]).ParticleType::PrintProperties();
     for (int i{0}; i < fMaxNumParticleType; ++i)
     {
-        (*fParticleType_[i]).PrintProperties();
+        if (fParticleType_[i] != nullptr)
+        {
+            (*fParticleType_[i]).PrintProperties();
+        }
+        else
+        {
+            std::cout << "There is no particle with index:" << i << "!\n";
+        }
     }
 }
 
@@ -133,4 +146,80 @@ double Particle::InvariantMass(Particle &p)
     double p_2_z = (p.GetPulsex() + this->GetPulsez()) * (p.GetPulsez() + this->GetPulsez());
     double p_2 = p_2_x + p_2_y + p_2_z;
     return sqrt(E_2 - p_2);
+}
+
+int Particle::Decay2body(Particle &dau1, Particle &dau2) const
+{
+    if (Return_fMass() == 0.0)
+    {
+        printf("Decayment cannot be preformed if mass is zero\n");
+        return 1;
+    }
+
+    double massMot = Return_fMass();
+    double massDau1 = dau1.Return_fMass();
+    double massDau2 = dau2.Return_fMass();
+
+    if (findex_ > -1)
+    { // add width effect
+
+        // gaussian random numbers
+
+        float x1, x2, w, y1;
+
+        double invnum = 1. / RAND_MAX;
+        do
+        {
+            x1 = 2.0 * rand() * invnum - 1.0;
+            x2 = 2.0 * rand() * invnum - 1.0;
+            w = x1 * x1 + x2 * x2;
+        } while (w >= 1.0);
+
+        w = sqrt((-2.0 * log(w)) / w);
+        y1 = x1 * w;
+
+        massMot += fParticleType_[findex_]->GetWidth() * y1;
+    }
+
+    if (massMot < massDau1 + massDau2)
+    {
+        printf("Decayment cannot be preformed because mass is too low in this channel\n");
+        return 2;
+    }
+
+    double pout = sqrt((massMot * massMot - (massDau1 + massDau2) * (massDau1 + massDau2)) * (massMot * massMot - (massDau1 - massDau2) * (massDau1 - massDau2))) / massMot * 0.5;
+
+    double norm = 2 * M_PI / RAND_MAX;
+
+    double phi = rand() * norm;
+    double theta = rand() * norm * 0.5 - M_PI / 2.;
+    dau1.SetP(pout * sin(theta) * cos(phi), pout * sin(theta) * sin(phi), pout * cos(theta));
+    dau2.SetP(-pout * sin(theta) * cos(phi), -pout * sin(theta) * sin(phi), -pout * cos(theta));
+
+    double energy = sqrt(fPx_ * fPx_ + fPy_ * fPy_ + fPz_ * fPz_ + massMot * massMot);
+
+    double bx = fPx_ / energy;
+    double by = fPy_ / energy;
+    double bz = fPz_ / energy;
+
+    dau1.Boost(bx, by, bz);
+    dau2.Boost(bx, by, bz);
+
+    return 0;
+}
+
+void Particle::Boost(double bx, double by, double bz)
+{
+
+    double energy = Calc_total_E();
+
+    // Boost this Lorentz vector
+    double b2 = bx * bx + by * by + bz * bz;
+    double gamma = 1.0 / sqrt(1.0 - b2);
+    double bp = bx * fPx_ + by * fPy_ + bz * fPz_;
+    double gamma2 = b2 > 0 ? (gamma - 1.0) / b2 : 0.0;
+
+    fPx_ += gamma2 * bp * bx + gamma * bx * energy;
+    fPy_ += gamma2 * bp * by + gamma * by * energy;
+    fPz_ += gamma2 * bp * bz + gamma * bz * energy;
 }

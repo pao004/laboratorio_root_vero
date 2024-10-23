@@ -1,3 +1,6 @@
+#ifndef PARTICLE_HPP
+#define PARTICLE_HPP
+
 #include "ParticleType.hpp"
 
 class Particle
@@ -27,8 +30,12 @@ public:
 
     double InvariantMass(Particle &p);
 
+    int Decay2body(Particle &dau1, Particle &dau2) const;
+
 private:
     static int FindParticle(const char *name);
+
+    void Boost(double bx, double by, double bz);
 
     double fPx_;
     double fPy_;
@@ -42,3 +49,5 @@ private:
 
     static int fNParticleType;
 };
+
+#endif
